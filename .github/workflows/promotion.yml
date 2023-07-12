@@ -1,0 +1,55 @@
+name: "Prep files to promote PR to higher environments"
+
+on:
+  push:
+    branches:
+      - "main" # push to main should only happen via PR merging when branch protection requires it
+
+jobs:
+  create-patch-file:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v3
+
+      - name: "Create a patch file"
+        run: |
+          git format-patch -1 --stdout > ${{ github.event.head_commit.id }}.patch
+
+      - name: "Upload patch file"
+        uses: actions/upload-artifact@v3
+        with:
+          path: ${{ github.event.head_commit.id }}.patch
+
+  create-upload-issue:
+    runs-on: ubuntu-latest
+    needs: create-patch-file
+    steps:
+      - name: Get Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@v2
+        with:
+          application_id: ${{ secrets.ISSUE_BOT_APP_ID }}
+          application_private_key: ${{ secrets.ISSUE_BOT_PRIVATE_KEY }}
+
+      - name: "Create an issue"
+        uses: imjohnbo/issue-bot@v3
+        env:
+          TOKEN: ${{ steps.get_workflow_token.outputs.token }}
+        with:
+          title: "Upload patch file for commit ${{ github.event.head_commit.id }}"
+          labels: "upload"
+          assignees: "some-natalie"
+          body: |-
+            Please navigate to https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }} and download the patch file.
+            Then, upload the patch file to promote to a higher environment using the standard procedure outlined `link goes here`.
+
+            This commit was pushed to the main branch at ${{ github.event.head_commit.timestamp }} by
+              - name: ${{ github.event.head_commit.author.name }}
+              - email: ${{ github.event.head_commit.author.email }}
+              - username: ${{ github.event.head_commit.author.username }}
+
+            :information_source: This issue is created automatically and the template should be edited to reflect your _actual_ steps here.  For the most part, uploading a patch file to GitHub is not at all helpful and it would instead be placed somewhere else.
+          project-type: organization
+          project: "orgs/some-fantastic/projects/1"
+          column: "🔖 Ready"
