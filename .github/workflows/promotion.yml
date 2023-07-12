@@ -60,4 +60,3 @@ jobs:
 
             :information_source: This issue is created automatically and the template should be edited to reflect your _actual_ steps here.  For the most part, uploading a patch file to GitHub is not at all helpful and it would instead be placed somewhere else.
           project-v2-path: orgs/some-fantastic/projects/1
-          column: "🔖 Ready"
