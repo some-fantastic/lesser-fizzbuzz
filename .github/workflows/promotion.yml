@@ -14,7 +14,7 @@ jobs:
 
       - name: "Create a patch file"
         run: |
-          git format-patch -1 --stdout > ${{ github.event.head_commit.id }}.patch
+          git format-patch -1 ${{ github.event.head_commit.id }} --stdout > ${{ github.event.head_commit.id }}.patch
 
       - name: "Upload patch file"
         uses: actions/upload-artifact@v3
