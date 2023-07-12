@@ -44,9 +44,8 @@ jobs:
 
       - name: "Create an issue and add to organization project board"
         uses: imjohnbo/issue-bot@v3
-        env:
-          TOKEN: ${{ steps.get_workflow_token.outputs.token }}
         with:
+          token: ${{ steps.get_workflow_token.outputs.token }}
           title: "Upload patch file for commit ${{ env.SHA_SHORT }}"
           labels: "upload"
           assignees: "some-natalie"
